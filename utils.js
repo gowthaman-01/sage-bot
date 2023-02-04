@@ -2,20 +2,20 @@ import { niveytha, ChatGPT, bot } from "./bot.js";
 import schedule, { scheduleJob } from "node-schedule";
 
 // Commands
-const startCommand = (ctx: any) => {
+const startCommand = (ctx) => {
   console.log("Bot started!");
   const welcomeMessage = `Hello Nivithu Kutty, welcome to the SAGE bot! I love you :)`;
   ctx.reply(welcomeMessage);
   showCommands(ctx);
 };
 
-const showCommands = (ctx: any) => {
+const showCommands = (ctx) => {
   console.log("Showing commands");
   const helpMessage = `What would like to do today baby?\n\n/diet - Display the generated diet plan for today\n/generate - Generate a new diet plan\n/chat - Chat with ChatGPT\n/terminate - End chat with ChatGPT\n/recipe - Get the recipe for a meal\n/food - Find places to eat\n/game - Find games to play\n/date - Get date ideas\n/love - Recieve love`;
   ctx.reply(helpMessage);
 };
 
-const dietCommand = async (ctx: any) => {
+const dietCommand = async (ctx) => {
   console.log("Diet command");
   if (niveytha.dietPlan === "") {
     ctx.reply(
@@ -26,7 +26,7 @@ const dietCommand = async (ctx: any) => {
   ctx.reply(`Diet plan for today:\n${niveytha.dietPlan}`);
 };
 
-const generateCommand = async (ctx: any) => {
+const generateCommand = async (ctx) => {
   console.log(`Generate command`);
   ctx.reply(`Generating a new diet plan. This might take a while...`);
   await getDiet();
@@ -45,7 +45,7 @@ const getDiet = async () => {
   niveytha.dietPlan = mealPlan.text;
 };
 
-const getRecipes = async (ctx: any) => {
+const getRecipes = async (ctx) => {
   ctx.reply("Getting recipe. Please hold on...");
   const meal = ctx.message.text;
   console.log(`Meal: ${meal}`);
@@ -57,7 +57,7 @@ const getRecipes = async (ctx: any) => {
   );
 };
 
-const getRestaurants = async (ctx: any) => {
+const getRestaurants = async (ctx) => {
   ctx.reply("Getting restaurants. Please hold on...");
   const craving = ctx.message.text;
   console.log(`Cravings: ${craving}`);
@@ -67,7 +67,7 @@ const getRestaurants = async (ctx: any) => {
   ctx.reply(`Here is the places you can have ${craving}:\n${places.text}`);
 };
 
-const getGames = async (ctx: any) => {
+const getGames = async (ctx) => {
   ctx.reply("Getting games. Please hold on...");
   const requirements = ctx.message.text;
   console.log(`Requirements: ${requirements}`);
@@ -77,7 +77,7 @@ const getGames = async (ctx: any) => {
   ctx.reply(`${games.text}`);
 };
 
-const getDates = async (ctx: any) => {
+const getDates = async (ctx) => {
   ctx.reply("Getting date ideas. Please hold on...");
   const theme = ctx.message.text;
   console.log(`Theme: ${theme}`);
@@ -87,7 +87,7 @@ const getDates = async (ctx: any) => {
   ctx.reply(`${dateIdeas.text}`);
 };
 
-const getLove = async (ctx: any) => {
+const getLove = async (ctx) => {
   ctx.reply(
     `I love you kutty. Are you feeling down? Lemme make you feel better...`
   );
@@ -97,7 +97,7 @@ const getLove = async (ctx: any) => {
   ctx.reply(`${loveQuote.text}`);
 };
 
-const chatWithChatGPT = async (ctx: any) => {
+const chatWithChatGPT = async (ctx) => {
   console.log(`Input text: ${ctx.message.text}`);
   const reply = await ChatGPT.sendMessage(ctx.message.text);
   console.log(`Reply from ChatGPT ${reply.text}`);

@@ -24,7 +24,7 @@ const port = process.env.PORT || 3000;
 
 // Express
 const expressApp = express();
-expressApp.get("/", (req: any, res: any) => {
+expressApp.get("/", (req, res) => {
   res.send("App Launched");
 });
 expressApp.listen(port, () => {
@@ -59,51 +59,51 @@ bot.command("diet", async (ctx) => await dietCommand(ctx));
 
 bot.command("generate", async (ctx) => await generateCommand(ctx));
 
-bot.command("chat", (ctx: any) => {
+bot.command("chat", (ctx) => {
   isChattingWithChatGPT = true;
   console.log("Chatting with Chat");
   ctx.reply(`Connected to ChatGPT. Input a message to begin your conversation`);
 });
 
-bot.command("recipe", (ctx: any) => {
+bot.command("recipe", (ctx) => {
   isGettingRecipes = true;
   console.log("Recipe command");
   ctx.reply(`What meal would you like to get the recipe for?`);
 });
 
-bot.command("food", (ctx: any) => {
+bot.command("food", (ctx) => {
   isGettingRestaurants = true;
   console.log("Food command");
   ctx.reply(`What are you craving?`);
 });
 
-bot.command("game", (ctx: any) => {
+bot.command("game", (ctx) => {
   isGettingGames = true;
   console.log("Game command");
   ctx.reply(
-    `Please input any requirements you have. Please be as detailed as possible`
+    `Please input  requirements you have. Please be as detailed as possible`
   );
 });
 
-bot.command("date", (ctx: any) => {
+bot.command("date", (ctx) => {
   isGettingDates = true;
   console.log("Date command");
   ctx.reply(`What theme would you like the date to be based on?`);
 });
 
-bot.command("love", async (ctx: any) => {
+bot.command("love", async (ctx) => {
   console.log("Love command");
   await getLove(ctx);
 });
 
-bot.command("terminate", (ctx: any) => {
+bot.command("terminate", (ctx) => {
   console.log("Terminate ChatGPT");
   isChattingWithChatGPT = false;
   ctx.reply(`Your chat with ChatGPT has ended`);
 });
 
 // User message
-bot.on("message", async (ctx: any) => {
+bot.on("message", async (ctx) => {
   if (isChattingWithChatGPT) {
     await chatWithChatGPT(ctx);
   } else if (isGettingRecipes) {
@@ -126,4 +126,4 @@ bot.on("message", async (ctx: any) => {
 // Launch bot
 bot.launch();
 
-export { bot, niveytha, ChatGPT };
+export { niveytha, ChatGPT, bot };
