@@ -1,5 +1,5 @@
 import { Telegraf } from "telegraf";
-
+import express from "express";
 import {
   startCommand,
   dietCommand,
@@ -16,6 +16,21 @@ import dotenv from "dotenv";
 import { ChatGPTAPI } from "chatgpt";
 import { Person } from "./classes/Niveytha.js";
 
+// Env variables
+dotenv.config();
+const BOT_TOKEN = process.env.BOT_TOKEN || "";
+const API_KEY = process.env.OPENAI_API_KEY || "";
+const port = process.env.PORT || 3000;
+
+// Express
+const expressApp = express();
+expressApp.get("/", (req: any, res: any) => {
+  res.send("App Launched");
+});
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});
+
 // Global variables
 let isChattingWithChatGPT = false;
 let isGettingRecipes = false;
@@ -23,11 +38,6 @@ let isGettingRestaurants = false;
 let isGettingGames = false;
 let isGettingDates = false;
 let niveytha = new Person("Niveytha", 21, 169, 57, "");
-
-// Env variables
-dotenv.config();
-const BOT_TOKEN = process.env.BOT_TOKEN || "";
-const API_KEY = process.env.OPENAI_API_KEY || "";
 
 // Telegram bot
 const bot = new Telegraf(BOT_TOKEN);
