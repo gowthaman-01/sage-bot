@@ -1,33 +1,4 @@
-import { randomInt } from "crypto";
-import { niveytha, ChatGPT, bot, telegraf } from "./bot.js";
-import schedule, { scheduleJob } from "node-schedule";
-
-// Commands
-const startCommand = (ctx, mainMenu) => {
-  console.log("Bot started!");
-  const welcomeMessage =
-    "Hello Nivithu Kutty. Get the best out of your day with Sage Bot! Stay on top of diet plans, chat with ChatGPT, find great places to eat, discover fun games to play and recieve lots of love! Have fun :)";
-  ctx.reply(welcomeMessage, { reply_markup: mainMenu });
-};
-
-const dietCommand = async (ctx) => {
-  console.log("Showing diet plan");
-  if (niveytha.dietPlan === "") {
-    ctx.reply(
-      "Diet plan for today has not been generated. Generating a new diet plan specially for you..."
-    );
-    await getDiet();
-  }
-  ctx.reply(`Diet plan for today:\n\n${niveytha.dietPlan}`);
-};
-
-const generateCommand = async (ctx) => {
-  console.log("Generating a new diet plan");
-  ctx.reply("Generating a new diet plan specially for you...");
-  await getDiet();
-  ctx.reply(`Diet plan for today:\n\n${niveytha.dietPlan}`);
-};
-
+import { niveytha, ChatGPT } from "../bot.js";
 // ChatGPT
 const getDiet = async () => {
   const prevMealPlan =
@@ -113,72 +84,13 @@ const chatWithChatGPT = async (ctx) => {
   ctx.reply(reply.text);
 };
 
-// Scheduling
-const sendDiet = async () => {
-  console.log("Sending daily plan");
-  await getDiet();
-  const chatId = niveytha.chatId || "";
-  await telegraf.telegram.sendMessage(
-    chatId,
-    `Kaalai Vannakkamz Pumpkin! Here's your diet plan for today:\n\n${niveytha.dietPlan}`
-  );
-};
-
-const sendMakeAWish = async () => {
-  console.log("Sending make a wish");
-  const chatId = niveytha.chatId || "";
-  await telegraf.telegram.sendMessage(chatId, "Make a wish :)");
-};
-
-const sendGoodNight = async () => {
-  console.log("Sending good night");
-  const chatId = niveytha.chatId || "";
-  await telegraf.telegram.sendMessage(chatId, "Good night babygirl! ");
-  await telegraf.telegram.sendMessage(chatId, "Sleep tight, Love you!");
-  await telegraf.telegram.sendMessage(chatId, "HUGGIS");
-  await telegraf.telegram.sendMessage(chatId, "KISSES");
-};
-
-const sendShortLoveMessage = async () => {
-  console.log("Sending loving message");
-  const chatId = niveytha.chatId || "";
-  let shortLoveMessage = await getShortLoveMessage();
-  await telegraf.telegram.sendMessage(chatId, shortLoveMessage);
-};
-
-const dietRule = new schedule.RecurrenceRule();
-dietRule.hour = 9;
-dietRule.minute = 0;
-
-const makeAWishRule = new schedule.RecurrenceRule();
-makeAWishRule.hour = 11;
-makeAWishRule.minute = 11;
-
-const goodNightRule = new schedule.RecurrenceRule();
-goodNightRule.hour = 23;
-goodNightRule.minute = 30;
-
-const shortLoveMessageRule = new schedule.RecurrenceRule();
-
-scheduleJob(dietRule, sendDiet);
-scheduleJob(makeAWishRule, sendMakeAWish);
-scheduleJob(goodNightRule, sendGoodNight);
-for (let i = 9; i < 24; i += 2) {
-  shortLoveMessageRule.hour = i;
-  shortLoveMessageRule.minute = randomInt(60);
-  scheduleJob(shortLoveMessageRule, sendShortLoveMessage);
-}
-
 export {
-  startCommand,
-  dietCommand,
-  generateCommand,
+  getDiet,
   getRecipes,
   getRestaurants,
+  getDates,
   getGames,
   getShortLoveMessage,
   getLongLoveMessage,
-  getDates,
-  sendDiet,
   chatWithChatGPT,
 };

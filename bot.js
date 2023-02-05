@@ -1,21 +1,23 @@
 import express from "express";
-import {
-  startCommand,
-  dietCommand,
-  generateCommand,
-  chatWithChatGPT,
-  getRecipes,
-  getRestaurants,
-  getGames,
-  getDates,
-  getLongLoveMessage,
-} from "./utils.js";
 import dotenv from "dotenv";
 import { ChatGPTAPI } from "chatgpt";
-import { Person } from "./classes/Niveytha.js";
+import { Person } from "./classes/Person.js";
 import { Bot } from "grammy";
 import { Menu } from "@grammyjs/menu";
 import { Telegraf } from "telegraf";
+import {
+  dietCommand,
+  generateCommand,
+  startCommand,
+} from "./utils/commands.js";
+import {
+  getRecipes,
+  getRestaurants,
+  getDates,
+  getGames,
+  getLongLoveMessage,
+  chatWithChatGPT,
+} from "./utils/chatgpt.js";
 
 // Env variables
 dotenv.config();
