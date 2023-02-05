@@ -1,10 +1,12 @@
-import { niveytha, ChatGPT, bot } from "./bot.js";
+import { randomInt } from "crypto";
+import { niveytha, ChatGPT, bot, telegraf } from "./bot.js";
 import schedule, { scheduleJob } from "node-schedule";
 
 // Commands
 const startCommand = (ctx, mainMenu) => {
   console.log("Bot started!");
-  const welcomeMessage = `Hello Nivithu Kutty. Get the best out of your day with Sage Bot! Stay on top of diet plans, chat with ChatGPT, find great places to eat, discover fun games to play and recieve lots of love! Have fun :)`;
+  const welcomeMessage =
+    "Hello Nivithu Kutty. Get the best out of your day with Sage Bot! Stay on top of diet plans, chat with ChatGPT, find great places to eat, discover fun games to play and recieve lots of love! Have fun :)";
   ctx.reply(welcomeMessage, { reply_markup: mainMenu });
 };
 
@@ -12,18 +14,18 @@ const dietCommand = async (ctx) => {
   console.log("Showing diet plan");
   if (niveytha.dietPlan === "") {
     ctx.reply(
-      `Diet plan for today has not been generated. Generating a new diet plan specially for you...`
+      "Diet plan for today has not been generated. Generating a new diet plan specially for you..."
     );
     await getDiet();
   }
-  ctx.reply(`Diet plan for today:\n${niveytha.dietPlan}`);
+  ctx.reply(`Diet plan for today:\n\n${niveytha.dietPlan}`);
 };
 
 const generateCommand = async (ctx) => {
-  console.log(`Generating a new diet plan`);
-  ctx.reply(`Generating a new diet plan specially for you...`);
+  console.log("Generating a new diet plan");
+  ctx.reply("Generating a new diet plan specially for you...");
   await getDiet();
-  ctx.reply(`Diet plan for today:\n${niveytha.dietPlan}`);
+  ctx.reply(`Diet plan for today:\n\n${niveytha.dietPlan}`);
 };
 
 // ChatGPT
@@ -46,7 +48,7 @@ const getRecipes = async (ctx) => {
   const recipe = await ChatGPT.sendMessage(query);
   console.log(`Recipe:\n${recipe.text}`);
   ctx.reply(
-    `Here is the recipe for ${meal} that you requested:\n${recipe.text}`
+    `Here is the recipe for ${meal} that you requested:\n\n${recipe.text}`
   );
 };
 
@@ -57,7 +59,7 @@ const getRestaurants = async (ctx) => {
   const query = `Suggest places to eat ${craving} in Singapore. Please provide as many options as possible. For each option, please provide some details about the restaurant. Provide the location of the restaurant as well`;
   const places = await ChatGPT.sendMessage(query);
   console.log(`Places:\n${places.text}`);
-  ctx.reply(`Here is the places you can have ${craving}:\n${places.text}`);
+  ctx.reply(`Here is the places you can have ${craving}:\n\n${places.text}`);
 };
 
 const getGames = async (ctx) => {
@@ -68,8 +70,8 @@ const getGames = async (ctx) => {
   console.log(`Requirements: ${requirements}`);
   const query = `Suggest a couple game to play. Here are the requirements - ${requirements}. Please provide as many games as possible and the detailed instructions of how to play them.`;
   const games = await ChatGPT.sendMessage(query);
-  console.log(`Games:\n${games.text}`);
-  ctx.reply(`${games.text}`);
+  console.log(`Game ideas:HAHAH\n${games.text}`);
+  ctx.reply(`Game ideas:\n\n${games.text}`);
 };
 
 const getDates = async (ctx) => {
@@ -81,17 +83,26 @@ const getDates = async (ctx) => {
   const query = `Suggest cute and sweet date ideas with ${theme}.`;
   const dateIdeas = await ChatGPT.sendMessage(query);
   console.log(`Date Ideas:\n${dateIdeas.text}`);
-  ctx.reply(`${dateIdeas.text}`);
+  ctx.reply(`Date ideas:\n\n${dateIdeas.text}`);
 };
 
-const getLove = async (ctx) => {
+const getLongLoveMessage = async (ctx) => {
   ctx.reply(
-    `I love you kutty! Are you feeling down? Lemme make you feel better...`
+    "I love you kutty! Are you feeling down? Lemme make you feel better..."
   );
-  const query = `Generate a loving and sweet message for my girlfriend Niveytha. The message should have no apostrophes and no signing off. End with a cute emoji`;
-  const loveQuote = await ChatGPT.sendMessage(query);
-  console.log(`Loving quote: ${loveQuote.text}`);
-  ctx.reply(`${loveQuote.text}`);
+  const query =
+    "Generate a loving and sweet message for my girlfriend Niveytha. The message should have no apostrophes and no signing off. End with a cute emoji";
+  const longLoveMessage = await ChatGPT.sendMessage(query);
+  console.log(`Loving quote: ${longLoveMessage.text}`);
+  ctx.reply(`${longLoveMessage.text}`);
+};
+
+const getShortLoveMessage = async () => {
+  const query =
+    "Generate a short love message. It has to be different that the previous message. It is very important that the message has no apostrophes and no signing off.";
+  const shortLoveMessage = await ChatGPT.sendMessage(query);
+  console.log(`Loving quote: ${shortLoveMessage.text}`);
+  return shortLoveMessage.text;
 };
 
 const chatWithChatGPT = async (ctx) => {
@@ -107,7 +118,7 @@ const sendDiet = async () => {
   console.log("Sending daily plan");
   await getDiet();
   const chatId = niveytha.chatId || "";
-  await bot.telegram.sendMessage(
+  await telegraf.telegram.sendMessage(
     chatId,
     `Kaalai Vannakkamz Pumpkin! Here's your diet plan for today:\n\n${niveytha.dietPlan}`
   );
@@ -116,7 +127,23 @@ const sendDiet = async () => {
 const sendMakeAWish = async () => {
   console.log("Sending make a wish");
   const chatId = niveytha.chatId || "";
-  await bot.telegram.sendMessage(chatId, `Make a wish :)`);
+  await telegraf.telegram.sendMessage(chatId, "Make a wish :)");
+};
+
+const sendGoodNight = async () => {
+  console.log("Sending good night");
+  const chatId = niveytha.chatId || "";
+  await telegraf.telegram.sendMessage(chatId, "Good night babygirl! ");
+  await telegraf.telegram.sendMessage(chatId, "Sleep tight, Love you!");
+  await telegraf.telegram.sendMessage(chatId, "HUGGIS");
+  await telegraf.telegram.sendMessage(chatId, "KISSES");
+};
+
+const sendShortLoveMessage = async () => {
+  console.log("Sending loving message");
+  const chatId = niveytha.chatId || "";
+  let shortLoveMessage = await getShortLoveMessage();
+  await telegraf.telegram.sendMessage(chatId, shortLoveMessage);
 };
 
 const dietRule = new schedule.RecurrenceRule();
@@ -125,10 +152,22 @@ dietRule.minute = 0;
 
 const makeAWishRule = new schedule.RecurrenceRule();
 makeAWishRule.hour = 11;
-makeAWishRule.second = 11;
+makeAWishRule.minute = 11;
+
+const goodNightRule = new schedule.RecurrenceRule();
+goodNightRule.hour = 23;
+goodNightRule.minute = 30;
+
+const shortLoveMessageRule = new schedule.RecurrenceRule();
 
 scheduleJob(dietRule, sendDiet);
 scheduleJob(makeAWishRule, sendMakeAWish);
+scheduleJob(goodNightRule, sendGoodNight);
+for (let i = 9; i < 24; i += 2) {
+  shortLoveMessageRule.hour = i;
+  shortLoveMessageRule.minute = randomInt(60);
+  scheduleJob(shortLoveMessageRule, sendShortLoveMessage);
+}
 
 export {
   startCommand,
@@ -137,7 +176,8 @@ export {
   getRecipes,
   getRestaurants,
   getGames,
-  getLove,
+  getShortLoveMessage,
+  getLongLoveMessage,
   getDates,
   sendDiet,
   chatWithChatGPT,

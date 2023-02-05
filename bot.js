@@ -8,13 +8,14 @@ import {
   getRestaurants,
   getGames,
   getDates,
-  getLove,
+  getLongLoveMessage,
 } from "./utils.js";
 import dotenv from "dotenv";
 import { ChatGPTAPI } from "chatgpt";
 import { Person } from "./classes/Niveytha.js";
 import { Bot } from "grammy";
 import { Menu } from "@grammyjs/menu";
+import { Telegraf } from "telegraf";
 
 // Env variables
 dotenv.config();
@@ -44,6 +45,7 @@ const continueChatGPTMessage =
 
 // Telegram bot
 const bot = new Bot(BOT_TOKEN);
+const telegraf = new Telegraf(BOT_TOKEN);
 
 // ChatGPT
 const ChatGPT = new ChatGPTAPI({
@@ -82,7 +84,7 @@ const mainMenu = new Menu("main-menu")
     );
   })
   .text("Recieve love ❤️", async (ctx) => {
-    await getLove(ctx);
+    await getLongLoveMessage(ctx);
   });
 
 // Chat menu
@@ -104,6 +106,7 @@ bot.use(chatMenu);
 // Start command
 bot.command("start", (ctx) => {
   startCommand(ctx, mainMenu);
+  niveytha.chatId = ctx.chat.id;
 });
 
 // Help command
@@ -143,4 +146,4 @@ bot.on("message", async (ctx) => {
 // Launch bot
 bot.start();
 
-export { niveytha, ChatGPT, bot };
+export { niveytha, ChatGPT, bot, telegraf };
