@@ -2,24 +2,17 @@ import { niveytha, ChatGPT, bot } from "./bot.js";
 import schedule, { scheduleJob } from "node-schedule";
 
 // Commands
-const startCommand = (ctx) => {
+const startCommand = (ctx, mainMenu) => {
   console.log("Bot started!");
-  const welcomeMessage = `Hello Nivithu Kutty, welcome to the SAGE bot! I love you :)`;
-  ctx.reply(welcomeMessage);
-  showCommands(ctx);
-};
-
-const showCommands = (ctx) => {
-  console.log("Showing commands");
-  const helpMessage = `What would like to do today baby?\n\n/diet - Display the generated diet plan for today\n/generate - Generate a new diet plan\n/chat - Chat with ChatGPT\n/terminate - End chat with ChatGPT\n/recipe - Get the recipe for a meal\n/food - Find places to eat\n/game - Find games to play\n/date - Get date ideas\n/love - Recieve love`;
-  ctx.reply(helpMessage);
+  const welcomeMessage = `Hello Nivithu Kutty. Get the best out of your day with Sage Bot! Stay on top of diet plans, chat with ChatGPT, find great places to eat, discover fun games to play and recieve lots of love! Have fun :)`;
+  ctx.reply(welcomeMessage, { reply_markup: mainMenu });
 };
 
 const dietCommand = async (ctx) => {
-  console.log("Diet command");
+  console.log("Showing diet plan");
   if (niveytha.dietPlan === "") {
     ctx.reply(
-      `Diet plan for today has not been generated. Generating a new diet plan. This might take a while...`
+      `Diet plan for today has not been generated. Generating a new diet plan specially for you...`
     );
     await getDiet();
   }
@@ -27,8 +20,8 @@ const dietCommand = async (ctx) => {
 };
 
 const generateCommand = async (ctx) => {
-  console.log(`Generate command`);
-  ctx.reply(`Generating a new diet plan. This might take a while...`);
+  console.log(`Generating a new diet plan`);
+  ctx.reply(`Generating a new diet plan specially for you...`);
   await getDiet();
   ctx.reply(`Diet plan for today:\n${niveytha.dietPlan}`);
 };
@@ -46,8 +39,8 @@ const getDiet = async () => {
 };
 
 const getRecipes = async (ctx) => {
-  ctx.reply("Getting recipe. Please hold on...");
   const meal = ctx.message.text;
+  ctx.reply(`Finding the recipe for ${meal}...`);
   console.log(`Meal: ${meal}`);
   const query = `Generate a detailed recipe with ingredients and cooking instructions for ${meal}`;
   const recipe = await ChatGPT.sendMessage(query);
@@ -58,8 +51,8 @@ const getRecipes = async (ctx) => {
 };
 
 const getRestaurants = async (ctx) => {
-  ctx.reply("Getting restaurants. Please hold on...");
   const craving = ctx.message.text;
+  ctx.reply(`Suggesting places to eat ${craving} as fast as I can...`);
   console.log(`Cravings: ${craving}`);
   const query = `Suggest places to eat ${craving} in Singapore. Please provide as many options as possible. For each option, please provide some details about the restaurant. Provide the location of the restaurant as well`;
   const places = await ChatGPT.sendMessage(query);
@@ -68,7 +61,9 @@ const getRestaurants = async (ctx) => {
 };
 
 const getGames = async (ctx) => {
-  ctx.reply("Getting games. Please hold on...");
+  ctx.reply(
+    "Generating fun and exciting game ideas based on your requirements..."
+  );
   const requirements = ctx.message.text;
   console.log(`Requirements: ${requirements}`);
   const query = `Suggest a couple game to play. Here are the requirements - ${requirements}. Please provide as many games as possible and the detailed instructions of how to play them.`;
@@ -78,7 +73,9 @@ const getGames = async (ctx) => {
 };
 
 const getDates = async (ctx) => {
-  ctx.reply("Getting date ideas. Please hold on...");
+  ctx.reply(
+    "Coming up with cute date ideas. In the meantime, go get dressed..."
+  );
   const theme = ctx.message.text;
   console.log(`Theme: ${theme}`);
   const query = `Suggest cute and sweet date ideas with ${theme}.`;
@@ -89,15 +86,16 @@ const getDates = async (ctx) => {
 
 const getLove = async (ctx) => {
   ctx.reply(
-    `I love you kutty. Are you feeling down? Lemme make you feel better...`
+    `I love you kutty! Are you feeling down? Lemme make you feel better...`
   );
-  const query = `Generate a loving and sweet message for my girlfriend Niveytha. The message should have no apostrophes and no signing off. End with a random love emoji`;
+  const query = `Generate a loving and sweet message for my girlfriend Niveytha. The message should have no apostrophes and no signing off. End with a cute emoji`;
   const loveQuote = await ChatGPT.sendMessage(query);
   console.log(`Loving quote: ${loveQuote.text}`);
   ctx.reply(`${loveQuote.text}`);
 };
 
 const chatWithChatGPT = async (ctx) => {
+  console.log("Chatting with ChatGPT");
   console.log(`Input text: ${ctx.message.text}`);
   const reply = await ChatGPT.sendMessage(ctx.message.text);
   console.log(`Reply from ChatGPT ${reply.text}`);
@@ -134,7 +132,6 @@ scheduleJob(makeAWishRule, sendMakeAWish);
 
 export {
   startCommand,
-  showCommands,
   dietCommand,
   generateCommand,
   getRecipes,

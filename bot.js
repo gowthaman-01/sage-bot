@@ -1,9 +1,7 @@
-import { Telegraf } from "telegraf";
 import express from "express";
 import {
   startCommand,
   dietCommand,
-  showCommands,
   generateCommand,
   chatWithChatGPT,
   getRecipes,
@@ -15,6 +13,8 @@ import {
 import dotenv from "dotenv";
 import { ChatGPTAPI } from "chatgpt";
 import { Person } from "./classes/Niveytha.js";
+import { Bot } from "grammy";
+import { Menu } from "@grammyjs/menu";
 
 // Env variables
 dotenv.config();
@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
 // Express
 const expressApp = express();
 expressApp.get("/", (req, res) => {
-  res.send("App Launched");
+  res.send("Bot Launched");
 });
 expressApp.listen(port, () => {
   console.log(`Listening on port ${port}`);
@@ -38,74 +38,91 @@ let isGettingRestaurants = false;
 let isGettingGames = false;
 let isGettingDates = false;
 let niveytha = new Person("Niveytha", 21, 169, 57, "");
+const menuMessage = "What would you like to do next baby?";
+const continueChatGPTMessage =
+  "Would you like to continue chatting with ChatGPT?";
 
 // Telegram bot
-const bot = new Telegraf(BOT_TOKEN);
+const bot = new Bot(BOT_TOKEN);
 
 // ChatGPT
 const ChatGPT = new ChatGPTAPI({
   apiKey: API_KEY,
 });
 
-// Commands
-bot.start((ctx) => {
-  startCommand(ctx);
-  niveytha.chatId = ctx.message.chat.id;
+// MainMenu
+const mainMenu = new Menu("main-menu")
+  .text("Display my diet", async (ctx) => await dietCommand(ctx))
+  .text("Generate a new diet", async (ctx) => await generateCommand(ctx))
+  .row()
+  .text("Chat with ChatGPT", async (ctx) => {
+    isChattingWithChatGPT = true;
+    ctx.reply(
+      `Connected to ChatGPT! Input a message to begin your conversation`
+    );
+  })
+  .text("Lookup a meal recipe", async (ctx) => {
+    isGettingRecipes = true;
+    ctx.reply(`What meal would you like to get the recipe for?`);
+  })
+  .row()
+  .text("Where shall we eat?", async (ctx) => {
+    isGettingRestaurants = true;
+    ctx.reply(`What are you craving?`);
+  })
+  .text("Cute date ideas!", async (ctx) => {
+    isGettingDates = true;
+    ctx.reply(`What theme would you like the date to be based on?`);
+  })
+  .row()
+  .text("Fun game ideas :)", async (ctx) => {
+    isGettingGames = true;
+    ctx.reply(
+      `What are the requirements for the game? Please be as detailed as possible!`
+    );
+  })
+  .text("Recieve love ❤️", async (ctx) => {
+    await getLove(ctx);
+  });
+
+// Chat menu
+const chatMenu = new Menu("chat-menu")
+  .text("Yes please", async (ctx) => {
+    isChattingWithChatGPT = true;
+    setTimeout(() => {
+      ctx.reply(`Ok, please type in your reply!`);
+    }, 1000);
+  })
+  .text("No, get me out", async (ctx) => {
+    isChattingWithChatGPT = false;
+    ctx.reply(`Your chat with ChatGPT has ended!`);
+  });
+
+bot.use(mainMenu);
+bot.use(chatMenu);
+
+// Start command
+bot.command("start", (ctx) => {
+  startCommand(ctx, mainMenu);
 });
 
-bot.help((ctx) => showCommands(ctx));
-
-bot.command("diet", async (ctx) => await dietCommand(ctx));
-
-bot.command("generate", async (ctx) => await generateCommand(ctx));
-
-bot.command("chat", (ctx) => {
-  isChattingWithChatGPT = true;
-  console.log("Chatting with Chat");
-  ctx.reply(`Connected to ChatGPT. Input a message to begin your conversation`);
+// Help command
+bot.command("help", (ctx) => {
+  ctx.reply(menuMessage, { reply_markup: mainMenu });
 });
 
-bot.command("recipe", (ctx) => {
-  isGettingRecipes = true;
-  console.log("Recipe command");
-  ctx.reply(`What meal would you like to get the recipe for?`);
-});
-
-bot.command("food", (ctx) => {
-  isGettingRestaurants = true;
-  console.log("Food command");
-  ctx.reply(`What are you craving?`);
-});
-
-bot.command("game", (ctx) => {
-  isGettingGames = true;
-  console.log("Game command");
-  ctx.reply(
-    `Please input  requirements you have. Please be as detailed as possible`
-  );
-});
-
-bot.command("date", (ctx) => {
-  isGettingDates = true;
-  console.log("Date command");
-  ctx.reply(`What theme would you like the date to be based on?`);
-});
-
-bot.command("love", async (ctx) => {
-  console.log("Love command");
-  await getLove(ctx);
-});
-
-bot.command("terminate", (ctx) => {
-  console.log("Terminate ChatGPT");
-  isChattingWithChatGPT = false;
-  ctx.reply(`Your chat with ChatGPT has ended`);
+// Menu command
+bot.command("menu", (ctx) => {
+  ctx.reply(menuMessage, { reply_markup: mainMenu });
 });
 
 // User message
 bot.on("message", async (ctx) => {
   if (isChattingWithChatGPT) {
     await chatWithChatGPT(ctx);
+    setTimeout(() => {
+      ctx.reply(continueChatGPTMessage, { reply_markup: chatMenu });
+    }, 1500);
   } else if (isGettingRecipes) {
     await getRecipes(ctx);
     isGettingRecipes = false;
@@ -119,11 +136,11 @@ bot.on("message", async (ctx) => {
     await getDates(ctx);
     isGettingDates = false;
   } else {
-    showCommands(ctx);
+    ctx.reply(menuMessage, { reply_markup: mainMenu });
   }
 });
 
 // Launch bot
-bot.launch();
+bot.start();
 
 export { niveytha, ChatGPT, bot };
